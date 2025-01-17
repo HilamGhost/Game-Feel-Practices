@@ -1,5 +1,5 @@
 # Unity-For-Jammers
-This is a example project for a workshop i gave about "Unity For Jammers"
+This is a example project for a  Turkish workshop i gave about "Unity For Jammers"
 
 ```
 ⠀⠀⠀⠀⠀⢀⡠⠔⠂⠉⠉⠉⠉⠐⠦⡀⠀⠀⠀⠀⠀⠀
