@@ -55,6 +55,27 @@ namespace Hilam
                 shakeTimer -= Time.deltaTime;
                 StopCameraShake();
             }
+
+            ChangeCameraSmoothing(GameFeelBooleans.Instance.CameraDelay);
+        }
+        
+        
+        public void ChangeCameraSmoothing(bool delay)
+        {
+            if (virtualCamera == null)
+            {
+                Debug.LogWarning("Virtual Camera is not assigned.");
+                return;
+            }
+            
+            var framingTransposer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+            if (framingTransposer != null)
+            {
+                framingTransposer.m_XDamping = delay? 1: 0f;
+                framingTransposer.m_YDamping = delay? 1: 0f;
+                framingTransposer.m_ZDamping = delay? 1: 0f;
+            }
+
         }
     }
 }

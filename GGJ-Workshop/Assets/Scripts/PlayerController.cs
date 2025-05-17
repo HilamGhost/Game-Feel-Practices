@@ -75,6 +75,7 @@ namespace Hilam
 
         private void Update()
         {
+            BlockAnimation();
            CheckMoveInput();
            CheckLookInput();
            ResetShootRate();
@@ -158,11 +159,25 @@ namespace Hilam
 
                 _shootRate = 0;
 
-                _staffImage.transform.DOLocalMoveY(0, _shootRateReset / 8).SetEase(Ease.OutCirc).OnComplete(()=> _staffImage.transform.DOLocalMoveY(0.121f, _shootRateReset / 4).SetEase(Ease.OutCirc));
-                CameraShaker.Instance.ShakeCamera(2,_shootRateReset / 8);
-                
-                _shootVFX.Play();
-                _audioSource.PlayOneShotWithRandomPitch(_shootSFX);
+                if (GameFeelBooleans.Instance.ShootAnimation)
+                {
+                    _staffImage.transform.DOLocalMoveY(0, _shootRateReset / 8).SetEase(Ease.OutCirc).OnComplete(()=> _staffImage.transform.DOLocalMoveY(0.121f, _shootRateReset / 4).SetEase(Ease.OutCirc));
+                }
+
+                if (GameFeelBooleans.Instance.CameraShake)
+                {
+                    CameraShaker.Instance.ShakeCamera(2,_shootRateReset / 8);
+                }
+
+                if (GameFeelBooleans.Instance.Particles)
+                {
+                    _shootVFX.Play();
+                }
+
+                if (GameFeelBooleans.Instance.SFXs)
+                {
+                    _audioSource.PlayOneShotWithRandomPitch(_shootSFX);
+                }
             }
         }
         #endregion
@@ -173,19 +188,37 @@ namespace Hilam
         {
             _health--;
             PlayerHealthChanged.Dispatch(_health);
+
+            if (GameFeelBooleans.Instance.Particles)
+            {
+                _playerHit.Play();
+            }
+
+            if (GameFeelBooleans.Instance.SFXs)
+            {
+                _audioSource.PlayOneShotWithRandomPitch(_hitSFX);
+            }
+
+            if (GameFeelBooleans.Instance.HitShader)
+            {
+                StartCoroutine(MaterialManager.Instance.ChangeMaterialToHit(_spriteRenderer));
+            }
             
-            _playerHit.Play();
-            _audioSource.PlayOneShotWithRandomPitch(_hitSFX);
-            StartCoroutine(MaterialManager.Instance.ChangeMaterialToHit(_spriteRenderer));
+            
+           
         }
 
         #endregion
 
         #region FX
 
+        public void BlockAnimation()
+        {
+            _animator.enabled = GameFeelBooleans.Instance.Animations;
+        }
         public void PlayMoveSFX()
         {
-            _audioSource.PlayOneShotWithRandomPitch(_walkSFX);
+            if(GameFeelBooleans.Instance.SFXs) _audioSource.PlayOneShotWithRandomPitch(_walkSFX);
         }
         #endregion
     }

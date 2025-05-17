@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
@@ -47,16 +48,41 @@ namespace Hilam
                 StopCoroutine(damageCoroutine);
             }
         }
-        
+
+        private void Update()
+        {
+            BlockAnimation();
+        }
+
         public void TakeDamage(Vector2 hitPosition)
         {
             Debug.Log("Damage Taken");
 
-            StartCoroutine(_rigidbody2D.KnockbackEntityOverTime(-hitPosition.normalized,1,0.1f));
-            StartCoroutine(MaterialManager.Instance.ChangeMaterialToHit(_spriteRenderer));
-            
-            _shotVFX.Play();
-            _audioSource.PlayOneShotWithRandomPitch(_hitSFX);
+            if (GameFeelBooleans.Instance.CameraShake)
+            {
+                CameraShaker.Instance.ShakeCamera(4,0.2f);
+            }
+
+            if (GameFeelBooleans.Instance.Knockback)
+            { 
+                StartCoroutine(_rigidbody2D.KnockbackEntityOverTime(-hitPosition.normalized,1,0.1f));
+            }
+                       
+                        
+            if(GameFeelBooleans.Instance.SFXs)
+            {
+                _audioSource.PlayOneShotWithRandomPitch(_attackSFX);
+            }
+
+            if (GameFeelBooleans.Instance.HitShader)
+            {
+                StartCoroutine(MaterialManager.Instance.ChangeMaterialToHit(_spriteRenderer));
+            }
+
+            if (GameFeelBooleans.Instance.Particles)
+            {
+                _shotVFX.Play();
+            }
         }
         
         private IEnumerator DamageOverTime()
@@ -70,14 +96,30 @@ namespace Hilam
                     PlayerController targetPlayer = hit.GetComponent<PlayerController>();
                     if (targetPlayer != null)
                     {
-                        PlayAttackVFX(targetPlayer.transform.position);
+                        if (GameFeelBooleans.Instance.ShootAnimation)
+                        {
+                            PlayAttackVFX(targetPlayer.transform.position);
+                        }
+                       
                         _animator.SetTrigger("Attack");
                         targetPlayer.TakeDamage();
+
+                        if (GameFeelBooleans.Instance.CameraShake)
+                        {
+                            CameraShaker.Instance.ShakeCamera(4,0.2f);
+                        }
+
+                        if (GameFeelBooleans.Instance.Knockback)
+                        { 
+                            StartCoroutine(_rigidbody2D.KnockbackEntityOverTime( -(transform.position - targetPlayer.transform.position).normalized,4,0.1f));
+                        }
+                       
                         
-                        CameraShaker.Instance.ShakeCamera(4,0.2f);
-                        StartCoroutine(_rigidbody2D.KnockbackEntityOverTime( -(transform.position - targetPlayer.transform.position).normalized,4,0.1f));
-                        
-                        _audioSource.PlayOneShotWithRandomPitch(_attackSFX);
+                        if(GameFeelBooleans.Instance.SFXs)
+                        {
+                            _audioSource.PlayOneShotWithRandomPitch(_attackSFX);
+                        }
+                      
                     }
                 }
                 
@@ -101,6 +143,10 @@ namespace Hilam
             {
                 _swordObject.SetActive(false);
             });
+        }
+        public void BlockAnimation()
+        {
+            _animator.enabled = GameFeelBooleans.Instance.Animations;
         }
     }
 }
